@@ -2,26 +2,44 @@ package org.delta.bank;
 
 import org.delta.bank.account.BaseBankAccount;
 import org.delta.bank.account.SavingBankAccount;
-import org.delta.bank.moneyTransfer.MoneyTransferService;
+import org.delta.bank.account.StudentBankAccount;
+import org.delta.bank.interest.InterestApplicator;
 import org.delta.bank.persons.Owner;
+import org.delta.bank.print.LogService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Bank {
     public void run() throws Exception {
+        LogService logService = new LogService();
+
         Owner owner1 = new Owner("John", "Doe");
 
-        BaseBankAccount account1 = new SavingBankAccount(owner1, "1234567890", 2000);
-        BaseBankAccount account2 = new BaseBankAccount(owner1, 2000, "0987654321");
+        List<BaseBankAccount> accounts = new ArrayList<>();
 
-        System.out.println("Before transfer:");
-        System.out.println("Account 1 balance: " + account1.getBalance());
-        System.out.println("Account 2 balance: " + account2.getBalance());
+        accounts.add(new BaseBankAccount(owner1, 10000, "1"));
+        accounts.add(new SavingBankAccount(owner1, "2", 10000));
+        accounts.add(new StudentBankAccount(owner1, "3", 10000));
 
-        MoneyTransferService moneyTransferService = new MoneyTransferService();
+        logService.log("Before:");
+        for (BaseBankAccount account : accounts) {
+            logService.logAccountInfo(account);
+        }
 
-        moneyTransferService.transferMoney(account1, account2, 1000);
+        InterestApplicator interestApplicator = new InterestApplicator();
 
-        System.out.println("After transfer:");
-        System.out.println("Account 1 balance: " + account1.getBalance());
-        System.out.println("Account 2 balance: " + account2.getBalance());
+        for (BaseBankAccount account : accounts) {
+            if (account == null) {
+                continue;
+            }
+
+            interestApplicator.applyInterest(account);
+        }
+
+        logService.log("After:");
+        for (BaseBankAccount account : accounts) {
+            logService.logAccountInfo(account);
+        }
     }
 }
